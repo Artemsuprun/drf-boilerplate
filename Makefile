@@ -6,10 +6,14 @@
 
 ifeq ($(OS),Windows_NT)
 	PYTHON ?= python
-	VENV_BIN = backend/.venv/Scripts
+	VENV_BIN = backend\.venv\Scripts
+	VENV_PYTHON = $(VENV_BIN)\python.exe
+	VENV_PIP = $(VENV_BIN)\pip.exe
 else
 	PYTHON ?= python3
 	VENV_BIN = backend/.venv/bin
+	VENV_PYTHON = $(VENV_BIN)/python
+	VENV_PIP = $(VENV_BIN)/pip
 endif
 
 COMPOSE_BASE = docker-compose.yml
@@ -155,19 +159,16 @@ reset-all:
 # Backend setup
 # ==================================================
 
-backend-setup:
-	$(PYTHON) -m venv backend/.venv
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/pip install -r backend/requirements.txt
-	python backend/manage.py makemigrations accounts
-	python backend/manage.py makemigrations
-	python backend/manage.py migrate
-
-backend-migrate:
-	python backend/manage.py migrate
-
-# Creates .venv and installs requirements locally
 backend-venv:
 	$(PYTHON) -m venv backend/.venv
-	$(VENV_BIN)/python -m pip install --upgrade pip
-	$(VENV_BIN)/pip install -r backend/requirements.txt
+	$(VENV_PYTHON) -m pip install --upgrade pip
+	$(VENV_PIP) install -r backend/requirements.txt
+
+# Sets up venv, installs dependencies, and runs initial Django migrations
+backend-setup: backend-venv
+	$(VENV_PYTHON) backend/manage.py makemigrations accounts
+	$(VENV_PYTHON) backend/manage.py makemigrations
+	$(VENV_PYTHON) backend/manage.py migrate
+
+backend-migrate:
+	$(VENV_PYTHON) backend/manage.py migrate
