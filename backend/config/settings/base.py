@@ -16,13 +16,13 @@ import environ
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+#BASE_DIR = Path(__file__).resolve().parent.parent.parent # this is now in __init__.py
 
 # import the environment variables
-env = environ.Env(
-    # default values
-    DEBUG=(bool, False)
-)
+#env = environ.Env(
+#    # default values
+#    DEBUG=(bool, False)
+#) # this is now in __init__.py
 
 # if environment variables are not set, read from the .env file
 #if not env.bool("READ_ENV_FILE", default=False):
@@ -60,7 +60,7 @@ LOCAL_APPS = [
     "apps.core", # Shared models and utilities
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+INSTALLED_APPS = LOCAL_APPS + DJANGO_APPS + THIRD_PARTY_APPS
 
 
 MIDDLEWARE = [

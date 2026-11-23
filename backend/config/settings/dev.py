@@ -2,6 +2,11 @@
 Development settings for the project.
 """
 
+# Load the Development settings if docker isn't running.
+from . import BASE_DIR, env
+env.read_env(BASE_DIR / '.env.dev')
+
+
 from .base import *
 
 
@@ -10,7 +15,7 @@ ENABLE_API_DOCS = True
 
 ALLOWED_HOSTS = env.list(
     "ALLOWED_HOSTS",
-    default=["localhost", "127.0.0.1", "[::1]"]
+    default=["*"]
 )
 
 _FRONTEND_ORIGINS = ["http://localhost:8000"]

@@ -3,6 +3,11 @@ Production settings for the project.
 Verify before deployment: python manage.py check --deploy
 """
 
+# Load the Production settings if docker isn't running.
+from . import BASE_DIR, env
+env.read_env(BASE_DIR / '.env.prod')
+
+
 from django.utils.csp import CSP
 from .base import *
 
@@ -38,7 +43,7 @@ CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS")
 CORS_ALLOW_CREDENTIALS = True
 
-CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS") # cookie based authentication
+CSRF_TRUSTED_ORIGINS = env.list("CSRF_TRUSTED_ORIGINS", default=[]) # cookie based authentication
 
 
 # HTTPS / SSL 

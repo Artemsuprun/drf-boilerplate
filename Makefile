@@ -21,7 +21,7 @@ PROD = docker compose -p $(PROD_PROJECT) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
         logs logs-backend logs-nginx logs-db logs-prod \
         migrate makemigrations createsuperuser shell collectstatic \
         migrate-prod collectstatic-prod createsuperuser-prod \
-        reset-db reset-all
+        reset-db reset-all backend-setup backend-migrate
 
 
 # ==================================================
@@ -141,3 +141,16 @@ reset-db:
 reset-all:
 	$(DEV) down -v
 	$(PROD) down -v
+
+
+# ==================================================
+# Backend setup
+# ==================================================
+
+backend-setup:
+	python manage.py makemigrations accounts
+	python manage.py makemigrations
+	python manage.py migrate
+
+backend-migrate:
+	python manage.py migrate
