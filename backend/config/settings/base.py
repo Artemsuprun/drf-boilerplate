@@ -10,9 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
-from pathlib import Path
 from datetime import timedelta
-import environ
+from . import BASE_DIR, env
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -32,7 +31,7 @@ import environ
 # Core / Security settings
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
+SECRET_KEY = env("SECRET_KEY", default="django-insecure-key")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG and ALLOWED_HOSTS are set in environment (dev or prod)
@@ -99,18 +98,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Database
 
-DATABASES = {
-    "default": {
-        "ENGINE": env("DB_ENGINE"),
-        "NAME": env("POSTGRES_DB"),
-        "USER": env("POSTGRES_USER"),
-        "PASSWORD": env("POSTGRES_PASSWORD"),
-        "HOST": env("POSTGRES_HOST"),
-        "PORT": env("POSTGRES_PORT"),
-        "CONN_MAX_AGE": 60,  # reuse database connections for 60 seconds
-        "CONN_HEALTH_CHECKS": True,
+# Uses sqlite3 by default, but can be overridden by environment variables for production
+if env("DB_NAME", default=None):
+    DATABASES = {
+        "default": {
+            "ENGINE": env("DB_ENGINE"),
+            "NAME": env("DB_NAME"),
+            "USER": env("DB_USER"),
+            "PASSWORD": env("DB_PASSWORD"),
+            "HOST": env("DB_HOST", default="db"),
+            "PORT": env("DB_PORT", default="5432"),
+            "CONN_MAX_AGE": 60,  # reuse database connections for 60 seconds
+            "CONN_HEALTH_CHECKS": True,
+        }
     }
-}
+else:
+    DATABASES = {"default": env.db(default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}")}
 
 
 # Cache
@@ -215,7 +218,7 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,
-    "SIGNING_KEY": env("JWT_SIGNING_KEY"),
+    "SIGNING_KEY": env("JWT_SIGNING_KEY", default="Some_JWT_Signing_Key"),
 }
 
 

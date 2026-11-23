@@ -4,6 +4,14 @@
 
 -include .env
 
+ifeq ($(OS),Windows_NT)
+	PYTHON ?= python
+	VENV_BIN = backend/.venv/Scripts
+else
+	PYTHON ?= python3
+	VENV_BIN = backend/.venv/bin
+endif
+
 COMPOSE_BASE = docker-compose.yml
 COMPOSE_DEV = docker-compose.dev.yml
 COMPOSE_PROD = docker-compose.prod.yml
@@ -21,7 +29,7 @@ PROD = docker compose -p $(PROD_PROJECT) -f $(COMPOSE_BASE) -f $(COMPOSE_PROD)
         logs logs-backend logs-nginx logs-db logs-prod \
         migrate makemigrations createsuperuser shell collectstatic \
         migrate-prod collectstatic-prod createsuperuser-prod \
-        reset-db reset-all backend-setup backend-migrate
+        reset-db reset-all backend-setup backend-migrate backend-venv
 
 
 # ==================================================
@@ -148,9 +156,18 @@ reset-all:
 # ==================================================
 
 backend-setup:
-	python manage.py makemigrations accounts
-	python manage.py makemigrations
-	python manage.py migrate
+	$(PYTHON) -m venv backend/.venv
+	$(VENV_BIN)/python -m pip install --upgrade pip
+	$(VENV_BIN)/pip install -r backend/requirements.txt
+	python backend/manage.py makemigrations accounts
+	python backend/manage.py makemigrations
+	python backend/manage.py migrate
 
 backend-migrate:
-	python manage.py migrate
+	python backend/manage.py migrate
+
+# Creates .venv and installs requirements locally
+backend-venv:
+	$(PYTHON) -m venv backend/.venv
+	$(VENV_BIN)/python -m pip install --upgrade pip
+	$(VENV_BIN)/pip install -r backend/requirements.txt
