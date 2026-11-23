@@ -25,6 +25,7 @@ from apps.core.views import health
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path("api/", include("apps.accounts.urls")),
     
     # health checkup for docker compose.
     path("health/", health),
