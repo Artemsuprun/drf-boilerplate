@@ -1,0 +1,83 @@
+# Production override
+# - requires ./.env, ./db/.env.prod and ./backend/.env.prod
+
+services:
+
+  # Database
+  db:
+    restart: unless-stopped
+
+    env_file:
+      - ./db/.env.prod
+
+    volumes:
+      - postgres_data_prod:/var/lib/postgresql
+
+  # Django backend
+  backend:
+    restart: unless-stopped
+
+    env_file:
+      - ./backend/.env.prod
+
+    volumes:
+      - static_volume_prod:/home/app/backend/staticfiles
+      - media_volume_prod:/home/app/backend/mediafiles
+  
+  # Let's Encrypt / Certbot
+  # Before running prod: 'make cert-init' 
+  certbot:
+    image: certbot/certbot:v5.8.0
+
+    restart: unless-stopped
+
+    entrypoint: >
+      /bin/sh -c "trap exit TERM;
+      while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!};
+      done"
+
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_www:/var/www/certbot
+
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Nginx
+  nginx:
+    restart: unless-stopped
+
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN in ./.env}
+      # Only substitute ${DOMAIN}; leave nginx's own $variables alone.
+      NGINX_ENVSUBST_FILTER: ^DOMAIN$$
+    
+    command: >
+      /bin/sh -c "(while :; do sleep 6h; nginx -s reload; done) &
+      exec /docker-entrypoint.sh nginx -g 'daemon off;'"
+
+    volumes:
+      - ./nginx/prod.conf:/etc/nginx/templates/default.conf.template:ro
+      - static_volume_prod:/home/app/backend/staticfiles:ro
+      - media_volume_prod:/home/app/backend/mediafiles:ro
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_www:/var/www/certbot:ro
+
+    ports:
+      - "80:80"
+      - "443:443"
+      # Admin is only reachable on this address; defaults to localhost (use an SSH tunnel
+      # or a VPN/private IP to reach it).
+      - "${ADMIN_BIND_IP:-127.0.0.1}:8080:8080"
+
+volumes:
+  postgres_data_prod:
+  static_volume_prod:
+  media_volume_prod:
+  certbot_certs:
+  certbot_www:

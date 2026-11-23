@@ -1,0 +1,107 @@
+# ==================================================
+# Secrets
+# ==================================================
+
+.env
+.env.*
+!.env.example
+!.env.template
+
+# ==================================================
+# Python
+# ==================================================
+
+# Bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Packaging and distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+wheels/
+pip-wheel-metadata/
+
+# Python tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.pytype/
+.dmypy.json
+
+# Coverage reports
+.coverage
+.coverage.*
+htmlcov/
+
+# ==================================================
+# Django
+# ==================================================
+
+# Local databases
+*.sqlite3
+*.sqlite3-journal
+
+# Local settings
+local_settings.py
+
+# User uploads and collected static files
+media/
+mediafiles/
+staticfiles/
+
+# ==================================================
+# Docker
+# ==================================================
+
+# Local Docker overrides
+docker-compose.override.yml
+
+# ==================================================
+# IDEs and Editors
+# ==================================================
+
+.vscode/
+.idea/
+.atom/
+*.swp
+*.swo
+*.swn
+*.iml
+*.ipr
+*.iws
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# ==================================================
+# Logs and Temporary Files
+# ==================================================
+
+*.log
+*.tmp
+*.bak
+
+# ==================================================
+# Operating System
+# ==================================================
+
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ==================================================
+# Miscellaneous
+# ==================================================
+
+.swiftpm/
+migrate_working_dir/

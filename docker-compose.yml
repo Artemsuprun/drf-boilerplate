@@ -1,0 +1,51 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+
+  # Database
+  db:
+    image: postgres:18
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    logging: *default-logging
+
+  # Django backend
+  backend:
+    build:
+      context: ./backend
+
+    depends_on:
+      db:
+        condition: service_healthy
+
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/', timeout=4)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+    logging: *default-logging
+    
+    expose:
+      - "8000" # expose backend port to nginx, but not to host machine
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:1.30-alpine
+
+    depends_on:
+      backend:
+        condition: service_healthy
+
+    logging: *default-logging

@@ -1,0 +1,39 @@
+# Development override
+
+services:
+
+  # Database
+  db:
+    env_file:
+      - ./db/.env.dev
+
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+  # Django backend
+  backend:
+    env_file:
+      - ./backend/.env.dev
+
+    command: ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+    volumes:
+      - ./backend:/home/app/backend
+      - media_volume_dev:/home/app/backend/mediafiles
+
+  # Nginx
+  nginx:
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - media_volume_dev:/home/app/backend/mediafiles:ro
+
+    ports:
+      - "127.0.0.1:80:80" # app: http://localhost:80
+      - "127.0.0.1:8080:8080" # django admin: http://localhost:8080/admin/
+
+volumes:
+  postgres_data_dev:
+  media_volume_dev:
