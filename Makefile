@@ -172,3 +172,12 @@ backend-setup: backend-venv
 
 backend-migrate:
 	$(VENV_PYTHON) backend/manage.py migrate
+
+
+# ==================================================
+# Initial setup instructions
+# ==================================================
+
+#init-setup: backend-setup
+#	# Add any other initial setup commands here, maybe like creating the .env file, etc.
+#	$(MAKE) dev
